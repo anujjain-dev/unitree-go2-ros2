@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+ROBOTS_PATH=$(dirname "$(realpath $0)")/configs
+
+for path in $ROBOTS_PATH/*; do
+    #skip if invalid directory
+    [ -d "${path}" ] || continue 
+    config_name=$(basename "${path}")
+    printf "$config_name : "
+    config_path=$ROBOTS_PATH/$config_name
+    rosrun champ_setup_assistant package_creator.py $config_path
+done
