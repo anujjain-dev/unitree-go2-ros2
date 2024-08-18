@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package>
+    <name>champ_teleop</name>
+    <version>0.6.2</version>
+    <description>Generic keyboard teleop for twist robots.</description>
+
+    <maintainer email="jimenojmm@gmail.com">Juan Miguel Jimeno></maintainer>
+
+    <license>BSD</license>
+
+    <url type="website"></url>
+
+    <author>Graylin Trevor Jay</author>
+    <author>Juan Miguel Jimeno</author>
+
+    <buildtool_depend>ament_cmake</buildtool_depend>
+
+    <run_depend>geometry_msgs</run_depend>
+    <run_depend>joy</run_depend>
+    <run_depend>rclpy</run_depend>
+    <run_depend>sensor_msgs</run_depend>
+
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
+</package>

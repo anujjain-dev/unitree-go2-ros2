@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<robot name="champ" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find champ_description)/urdf/properties.urdf.xacro" />
+
+    <material name="black"><color rgba="0.15 0.15 0.15 1.0" /></material>
+    
+    <link name="base_link">
+        
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${base_mesh_path}" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find champ_description)/meshes/base_simple.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="black" />
+        </visual>
+    </link>
+    <link name="base_inertia">    
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="${base_mass}" />
+            <inertia ixx="${(1/12) * base_mass * (base_y_length * base_y_length + base_z_length * base_z_length)}" ixy="0.0" ixz="0.0"
+                     iyy="${(1/12) * base_mass * (base_x_length * base_x_length + base_z_length * base_z_length)}" iyz="0.0"
+                     izz="${(1/12) * base_mass * (base_x_length * base_x_length + base_y_length * base_y_length)}" />
+        </inertial>
+    </link>  
+    <joint name="base_link_to_base_inertia" type="fixed">    
+        <parent link="base_link"/>    
+        <child link="base_inertia"/>    
+        <origin rpy="0 0 0" xyz="0 0 0"/>  
+    </joint>  
+
+    <!-- <link name="world"/>
+
+    <joint name="fixed" type="fixed">
+        <parent link="world"/>
+        <child link="base_link"/>
+      </joint> -->
+    <gazebo reference="base_link">
+        <material>Gazebo/FlatBlack</material>
+    </gazebo>
+
+    <xacro:include filename="$(find champ_description)/urdf/leg.urdf.xacro" />
+
+    <xacro:include filename="$(find champ_description)/urdf/accessories.urdf.xacro" />
+
+    <xacro:accessories 
+        base_name="base_link" 
+        base_length="${base_x_length}"
+        base_height="${base_z_length}"
+    />
+
+    <xacro:champ_leg leg="lf"/>
+    <xacro:champ_leg leg="lh"/>
+    <xacro:champ_leg leg="rf"/>
+    <xacro:champ_leg leg="rh"/>
+    
+    <gazebo>
+      <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+        <ros>
+            <argument>odom:=odom/ground_truth</argument>
+        </ros>
+
+        <body_name>base_link</body_name>
+        <frame_name>world</frame_name>
+        <update_rate>10.0</update_rate>
+        <xyz_offset>0 0 0</xyz_offset>
+        <rpy_offset>0 0 0</rpy_offset>
+        <gaussian_noise>0.01</gaussian_noise>
+    </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+        <parameters>$(find champ_gazebo)/config/ros_control.yaml</parameters>
+      </plugin>
+    </gazebo>
+</robot>

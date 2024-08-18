@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:macro name="champ_leg" params="leg  " >
+
+        <xacro:if value="${leg == 'lf'}">
+            <xacro:property name="base_to_hip_xyz" value="${base_to_hip_x} ${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg" value="${hip_to_upper_leg_distance}" />
+        </xacro:if>
+
+        <xacro:if value="${leg == 'lh'}">
+            <xacro:property name="base_to_hip_xyz" value="-${base_to_hip_x} ${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg" value="${hip_to_upper_leg_distance}" />
+        </xacro:if>
+
+        <xacro:if value="${leg == 'rf'}">
+            <xacro:property name="base_to_hip_xyz" value="${base_to_hip_x} -${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg" value="-${hip_to_upper_leg_distance}" />
+        </xacro:if>
+
+        <xacro:if value="${leg == 'rh'}">
+            <xacro:property name="base_to_hip_xyz" value="-${base_to_hip_x} -${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg" value="-${hip_to_upper_leg_distance}" />
+        </xacro:if>
+
+        <link name="${leg}_hip_debug_link"/>
+
+        <link name="${leg}_hip_link">
+            <inertial>
+                <mass value="${hip_mass}" />
+                <inertia ixx="${(1/12) * hip_mass * (hip_y_length * hip_y_length + hip_z_length * hip_z_length)}" ixy="0.0" ixz="0.0"
+                         iyy="${(1/12) * hip_mass * (hip_x_length * hip_x_length + hip_z_length * hip_z_length)}" iyz="0.0"
+                         izz="${(1/12) * hip_mass * (hip_x_length * hip_x_length + hip_y_length * hip_y_length)}" />
+            </inertial>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${hip_mesh_path}" scale="0.001 0.001 0.001" />
+                </geometry>
+            </collision>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${hip_mesh_path}" scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="black" />
+            </visual>
+        </link>
+        <gazebo reference="${leg}_hip_link">
+            <material>Gazebo/FlatBlack</material>
+        </gazebo>
+
+        <link name="${leg}_upper_leg_link">
+            <inertial>
+                <origin xyz="0 0 -${(upper_leg_z_length / 2) - ((upper_leg_z_length - upper_leg_to_lower_leg_distance) / 2)}" />
+                <mass value="${upper_leg_mass}" />
+                <inertia ixx="${(1/12) * upper_leg_mass * (upper_leg_y_length * upper_leg_y_length + upper_leg_z_length * upper_leg_z_length)}" ixy="0.0" ixz="0.0"
+                         iyy="${(1/12) * upper_leg_mass * (upper_leg_x_length * upper_leg_x_length + upper_leg_z_length * upper_leg_z_length)}" iyz="0.0"
+                         izz="${(1/12) * upper_leg_mass * (upper_leg_x_length * upper_leg_x_length + upper_leg_y_length * upper_leg_y_length)}" />
+            </inertial>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${upper_leg_mesh_path}" scale="0.001 0.001 0.001" />
+                </geometry>
+            </collision>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${upper_leg_mesh_path}" scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="black" />
+            </visual>
+        </link>
+        <gazebo reference="${leg}_upper_leg_link">
+            <material>Gazebo/FlatBlack</material>
+        </gazebo>
+
+        <link name="${leg}_lower_leg_link">
+            <inertial>
+                <origin xyz="0 0 -${(lower_leg_to_foot_distance - (lower_leg_z_length - lower_leg_to_foot_distance)) / 2}" />
+                <mass value="${lower_leg_mass}" />
+                <inertia ixx="${(1/12) * lower_leg_mass * (lower_leg_y_length * lower_leg_y_length + lower_leg_z_length * lower_leg_z_length)}" ixy="0.0" ixz="0.0"
+                         iyy="${(1/12) * lower_leg_mass * (lower_leg_x_length * lower_leg_x_length + lower_leg_z_length * lower_leg_z_length)}" iyz="0.0"
+                         izz="${(1/12) * lower_leg_mass * (lower_leg_x_length * lower_leg_x_length + lower_leg_y_length * lower_leg_y_length)}" />
+            </inertial>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${lower_leg_mesh_path}" scale="0.001 0.001 0.001" />
+                </geometry>
+            </collision>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${lower_leg_mesh_path}" scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="black" />
+            </visual>
+        </link>
+        
+        <gazebo reference="${leg}_lower_leg_link">
+            <kp>10000000000.0</kp>
+            <kd>100.0</kd>
+            <mu1>0.8</mu1>
+            <mu2>0.8</mu2>
+            <minDepth>0.05</minDepth>
+            <material>Gazebo/FlatBlack</material>
+        </gazebo>
+
+        <link name="${leg}_foot_link" />
+        <!-- <link name="${leg}_foot_link_debug" /> -->
+
+        <joint name="${leg}_debug_joint" type="fixed">
+            <parent link="base_link" />
+            <child link="${leg}_hip_debug_link" />
+            <origin xyz="${base_to_hip_xyz}" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${leg}_hip_joint" type="revolute">
+            <axis xyz="1 0 0" />
+            <limit effort="25" lower="-${pi}" upper="${pi}" velocity="1.5" />
+            <parent link="base_link" />
+            <child link="${leg}_hip_link" />
+            <origin xyz="${base_to_hip_xyz}" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${leg}_upper_leg_joint" type="revolute">
+            <axis xyz="0 1 0" />
+            <limit effort="25" lower="-${pi}" upper="${pi}" velocity="1.5" />
+            <parent link="${leg}_hip_link" />
+            <child link="${leg}_upper_leg_link" />
+            <origin xyz="0 ${hip_to_upper_leg} 0" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${leg}_lower_leg_joint" type="revolute">
+            <axis xyz="0 1 0" />
+            <limit effort="25" lower="-${pi}" upper="${pi}" velocity="1.5" />
+            <parent link="${leg}_upper_leg_link" />
+            <child link="${leg}_lower_leg_link" />
+            <origin xyz="0 0 -${upper_leg_to_lower_leg_distance}" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${leg}_foot_joint" type="fixed">
+            <parent link="${leg}_lower_leg_link" />
+            <child link="${leg}_foot_link" />
+            <origin xyz="0.00325 0 -${lower_leg_to_foot_distance}" rpy="0 0 0" />
+            <!-- <origin xyz="0 0 -${lower_leg_to_foot_distance}" rpy="0 0 0" /> -->
+        </joint>
+        
+        <!-- <joint name="${leg}_debug_joint_foot" type="fixed">
+            <parent link="${leg}_foot_link" />
+            <child link="${leg}_foot_link_debug" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </joint> -->
+
+        <ros2_control name="${leg}" type="system">
+            <hardware>
+                <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+            </hardware>
+            <joint name="${leg}_hip_joint">
+                <command_interface name="effort"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+        
+            <joint name="${leg}_upper_leg_joint">
+                <command_interface name="effort"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+        
+            <joint name="${leg}_lower_leg_joint">
+                <command_interface name="effort"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+        </ros2_control> 
+    </xacro:macro>
+</robot>
