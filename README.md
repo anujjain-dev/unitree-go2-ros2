@@ -35,6 +35,7 @@
 - &check; Spawning go2 in gazebo environment.
 - &check; Working rviz only demo.
 - &check; Working Gazebo with teleoperated robot.
+- &cross; Adding IMU and 2D LiDAR.
 - &cross; Working Gazebo demo with SLAM.
 - &cross; Working Gazebo demo with nav2 integration.
 
