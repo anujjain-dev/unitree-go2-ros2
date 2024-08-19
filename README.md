@@ -48,7 +48,7 @@ sudo apt install -y python3-rosdep
 rosdep update
 
 cd <your_ws>/src
-git clone https://github.com/architjain19/unitree-go2-champ-config.git
+git clone https://github.com/anujjain-dev/unitree-go2-ros2.git
 cd <your_ws>
 rosdep install --from-paths src --ignore-src -r -y
 ```
