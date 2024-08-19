@@ -32,18 +32,6 @@ joint_group_effort_controller:
       - velocity
     
     gains:
-      # lf_hip_joint        : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # lf_upper_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # lf_lower_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # rf_hip_joint        : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # rf_upper_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # rf_lower_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # lh_hip_joint        : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # lh_upper_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # lh_lower_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # rh_hip_joint        : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # rh_upper_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
-      # rh_lower_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5}
       lf_hip_joint        : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5, ff_velocity_scale: 1.0}
       lf_upper_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5, ff_velocity_scale: 1.0}
       lf_lower_leg_joint  : {p: 100.0, i: 0.2, d: 1.0, i_clamp: 2.5, ff_velocity_scale: 1.0}
