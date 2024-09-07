@@ -64,6 +64,7 @@ def generate_launch_description():
     )
     declare_world_init_x = DeclareLaunchArgument("world_init_x", default_value="0.0")
     declare_world_init_y = DeclareLaunchArgument("world_init_y", default_value="0.0")
+    declare_world_init_z = DeclareLaunchArgument("world_init_z", default_value="0.275")
     declare_world_init_heading = DeclareLaunchArgument(
         "world_init_heading", default_value="0.0"
     )
@@ -109,6 +110,7 @@ def generate_launch_description():
             "lite": LaunchConfiguration("lite"),
             "world_init_x": LaunchConfiguration("world_init_x"),
             "world_init_y": LaunchConfiguration("world_init_y"),
+            "world_init_z": LaunchConfiguration("world_init_z"),
             "world_init_heading": LaunchConfiguration("world_init_heading"),
             "gui": LaunchConfiguration("gui"),
             "close_loop_odom": "true",
@@ -126,6 +128,7 @@ def generate_launch_description():
             declare_gui,
             declare_world_init_x,
             declare_world_init_y,
+            declare_world_init_z,
             declare_world_init_heading,
             bringup_ld,
             gazebo_ld
