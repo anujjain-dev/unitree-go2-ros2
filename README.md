@@ -35,11 +35,24 @@
 - &check; Spawning go2 in gazebo environment.
 - &check; Working rviz only demo.
 - &check; Working Gazebo with teleoperated robot.
-- &cross; Adding IMU and 2D LiDAR.
+- &check; Adding IMU and 2D LiDAR.
+- &check; Adding 3D LiDAR (Velodyne).
 - &cross; Working Gazebo demo with SLAM.
 - &cross; Working Gazebo demo with nav2 integration.
 
 ## 1. Installation
+
+### 1.0 Install ROS-based dependencies:
+```bash
+sudo apt install ros-humble-gazebo-ros2-control
+sudo apt install ros-humble-xacro
+sudo apt install ros-humble-robot-localization
+sudo apt install ros-humble-ros2-controllers
+sudo apt install ros-humble-ros2-control
+sudo apt install ros-humble-velodyne
+sudo apt install ros-humble-velodyne-gazebo-plugins
+sudo apt-get install ros-humble-velodyne-description
+```
 
 ### 1.1 Clone and install all dependencies:
     
@@ -75,11 +88,39 @@ ros2 launch go2_config gazebo.launch.py rviz:=true
 ```
 ![Go2 Gazebo RViz Launch](.docs/gazebo_rviz_launch.png)
 
-#### 2.3 Run the teleop node:
+### 2.3 Run the teleop node:
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 https://github.com/user-attachments/assets/bcfeec70-12c5-49b8-b7a7-da4fa9b6dea5
+
+### 2.4 Go2 Velodyne Config Gazebo demo: Run the Gazebo environment
+```bash
+ros2 launch go2_config gazebo_velodyne.launch.py 
+```
+![Go2 Velodyne Gazebo Launch](.docs/gazebo_velodyne_launch.png)
+
+### 2.5 Go2 Veldyne Config Walking/PointCloud demo in RVIZ: Run the gazebo along with rviz
+```bash
+ros2 launch go2_config gazebo_velodyne.launch.py rviz:=true
+```
+
+> Note: set point cloud topic to `/velodyne_points`
+
+![Go2 Velodyne Gazebo RViz Launch](.docs/gazebo_velodyne_rviz_launch.png)
+
+### 2.6 Go2 Hokoyu 2D LiDAR Config Gazbeo demo: Run the Gazebo environment
+
+> NOTE: To use Laser instead of 3D Velodyne LiDAR, comment `<xacro:include filename="$(find go2_description)/xacro/velodyne.xacro"/>` and uncomment `<xacro:include filename="$(find go2_description)/xacro/laser.xacro"/>` in `robot_VLP.xacro` file located inside `robots/description/go2_description/xacro/` folder.
+
+```bash
+ros2 launch go2_config gazebo_velodyne.launch.py 
+```
+
+To Run the gazebo along with rviz
+```bash
+ros2 launch go2_config gazebo_velodyne.launch.py rviz:=true
+```
 
 ## 3. Tuning gait parameters
 

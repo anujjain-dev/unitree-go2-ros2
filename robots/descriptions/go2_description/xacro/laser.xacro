@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <joint name="chassis_front_laser_joint" type="fixed">
+        <axis xyz="0 0 1"/>
+        <origin rpy="0 0 0" xyz="0.225 0 0.105"/>
+        <parent link="base_link"/>
+        <child link="front_laser"/>
+    </joint>
+    <link name="front_laser">
+        <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+            <box size="0.1 0.1 0.1"/>
+        </geometry>
+        </collision>
+        <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+            <mesh filename="file://$(find go2_description)/meshes/hokuyo.dae"/>
+        </geometry>
+        </visual>
+        <inertial>
+        <mass value="1e-5"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+        </inertial>
+    </link>
+    <gazebo reference="front_laser">
+        <sensor name="front_laser_sensor" type="ray">
+            <always_on>true</always_on>
+            <visualize>false</visualize>
+            <pose>-0.032 0 0.171 0 0 0</pose>
+            <update_rate>50</update_rate>
+            <ray>
+            <scan>
+                <horizontal>
+                <samples>40</samples>
+                <resolution>1.000000</resolution>
+                <min_angle>0.000000</min_angle>
+                <max_angle>6.280000</max_angle>
+                </horizontal>
+            </scan>
+            <range>
+                <min>0.120000</min>
+                <max>3.5</max>
+                <resolution>0.015000</resolution>
+            </range>
+            <noise>
+                <type>gaussian</type>
+                <mean>0.0</mean>
+                <stddev>0.01</stddev>
+            </noise>
+            </ray>
+            <plugin name="gazebo_ros_front_laserscan" filename="libgazebo_ros_ray_sensor.so">
+            <ros>
+                <remapping>~/out:=scan</remapping>
+            </ros>
+            <output_type>sensor_msgs/LaserScan</output_type>
+            <frame_name>front_laser</frame_name>
+            </plugin>
+        </sensor>
+    </gazebo>
+</robot>
