@@ -27,6 +27,10 @@ def generate_launch_description():
         [this_package, 'config/autonomy', 'slam.yaml']
     )
 
+    default_nav_params_file_path = PathJoinSubstitution(
+        [this_package, 'config/autonomy', 'navigation.yaml']
+    )
+
     slam_launch_path = PathJoinSubstitution(
         [FindPackageShare('champ_navigation'), 'launch', 'slam.launch.py']
     )
@@ -36,6 +40,12 @@ def generate_launch_description():
             name='slam_params_file',
             default_value=default_params_file_path,
             description='Navigation2 slam params file'
+        ),
+
+        DeclareLaunchArgument(
+            name='params_file',
+            default_value=default_nav_params_file_path,
+            description='Navigation2 params file used by the nav2 stack during SLAM'
         ),
 
         DeclareLaunchArgument(
@@ -54,6 +64,7 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(slam_launch_path),
             launch_arguments={
                 'slam_params_file': LaunchConfiguration("slam_params_file"),
+                'params_file': LaunchConfiguration("params_file"),
                 'sim': LaunchConfiguration("sim"),
                 'rviz': LaunchConfiguration("rviz")
             }.items()

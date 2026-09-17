@@ -17,7 +17,7 @@ from launch.event_handlers.on_process_exit import OnProcessExit
 from launch.event_handlers.on_execution_complete import OnExecutionComplete
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, PythonExpression
 
 
 def generate_launch_description():
@@ -46,6 +46,12 @@ def generate_launch_description():
         name="description_path",
         default_value=default_model_path,
         description="Absolute path to robot urdf file",
+    )
+
+    declare_description_args = DeclareLaunchArgument(
+        name="description_args",
+        default_value="",
+        description="Extra xacro arguments for the description, e.g. 'laser:=true'",
     )
 
     declare_rviz_path = DeclareLaunchArgument(
@@ -100,6 +106,15 @@ def generate_launch_description():
         "gazebo", default_value="false", description="If in gazebo"
     )
 
+    declare_controller = DeclareLaunchArgument(
+        "controller",
+        default_value="champ",
+        description="Locomotion controller: 'champ' runs the CHAMP gait controller; "
+                    "'model' leaves joint commands to an external RL policy node. The "
+                    "state estimator and EKFs run either way, so odom/TF stay available "
+                    "to SLAM and Nav2.",
+    )
+
     declare_joint_controller_topic = DeclareLaunchArgument(
         "joint_controller_topic",
         default_value="joint_group_effort_controller/joint_trajectory",
@@ -151,6 +166,7 @@ def generate_launch_description():
         launch_arguments={
             "use_sim_time": LaunchConfiguration("use_sim_time"),
             "description_path": LaunchConfiguration("description_path"),
+            "description_args": LaunchConfiguration("description_args"),
         }.items(),
     )
 
@@ -165,12 +181,15 @@ def generate_launch_description():
             {"publish_joint_control": LaunchConfiguration("publish_joint_control")},
             {"publish_foot_contacts": LaunchConfiguration("publish_foot_contacts")},
             {"joint_controller_topic": LaunchConfiguration("joint_controller_topic")},
-            {"urdf": Command(['xacro ', LaunchConfiguration('description_path')])},
+            {"urdf": Command(['xacro ', LaunchConfiguration('description_path'), ' ', LaunchConfiguration('description_args')])},
             LaunchConfiguration('joints_map_path'),
             LaunchConfiguration('links_map_path'),
             LaunchConfiguration('gait_config_path'),
         ],
         remappings=[("/cmd_vel/smooth", "/cmd_vel")],
+        condition=IfCondition(
+            PythonExpression(["'", LaunchConfiguration("controller"), "' == 'champ'"])
+        ),
     )
 
     state_estimator_node = Node(
@@ -180,7 +199,7 @@ def generate_launch_description():
         parameters=[
             {"use_sim_time": LaunchConfiguration("use_sim_time")},
             {"orientation_from_imu": LaunchConfiguration("orientation_from_imu")},
-            {"urdf": Command(['xacro ', LaunchConfiguration('description_path')])},
+            {"urdf": Command(['xacro ', LaunchConfiguration('description_path'), ' ', LaunchConfiguration('description_args')])},
             LaunchConfiguration('joints_map_path'),
             LaunchConfiguration('links_map_path'),
             LaunchConfiguration('gait_config_path'),
@@ -237,6 +256,7 @@ def generate_launch_description():
         [
             declare_use_sim_time,
             declare_description_path,
+            declare_description_args,
             declare_rviz_path,
             declare_joints_map_path,
             declare_links_map_path,
@@ -248,6 +268,7 @@ def generate_launch_description():
             declare_base_link_frame,
             declare_lite,
             declare_gazebo,
+            declare_controller,
             declare_joint_controller_topic,
             declare_hardware_connected,
             declare_publish_joint_control,

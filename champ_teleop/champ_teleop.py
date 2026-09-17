@@ -202,6 +202,21 @@ CTRL-C to quit
 
                 else:
                     cmd_attempts = 0
+                    x = 0
+                    y = 0
+                    z = 0
+                    th = 0
+                    
+                    # Publish stop command
+                    twist = Twist()
+                    twist.linear.x = 0.0
+                    twist.linear.y = 0.0
+                    twist.linear.z = 0.0
+                    twist.angular.x = 0.0
+                    twist.angular.y = 0.0
+                    twist.angular.z = 0.0
+                    self.velocity_publisher.publish(twist)
+                    
                     if (key == '\x03'):
                         break
 

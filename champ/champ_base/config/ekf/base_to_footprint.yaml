@@ -3,6 +3,11 @@ base_to_footprint_ekf:
     frequency: 50.0
     publish_tf: true
     transform_timeout: 0.01
+    # Without this, robot_localization stamps its output (and its TF) at the time of the
+    # last fused measurement, which left odom->base_footprint ~0.35 s stale. Every
+    # scan-consuming node (slam_toolbox, both costmaps) then failed to transform the
+    # laser at the scan's own timestamp and silently dropped every scan.
+    predict_to_current_time: true
     transform_time_offset: 0.045
     two_d_mode: false
     # diagnostics_agg: true

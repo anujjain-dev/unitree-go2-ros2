@@ -31,6 +31,9 @@ def generate_launch_description():
     links_config = PathJoinSubstitution(
         [this_package, 'config', 'links', 'links.yaml']
     )
+    description_path = PathJoinSubstitution(
+        [FindPackageShare('go2_description'), 'xacro', 'robot.xacro']
+    )
     bringup_launch_path = PathJoinSubstitution(
         [FindPackageShare('champ_bringup'), 'launch', 'bringup.launch.py']
     )
@@ -60,9 +63,17 @@ def generate_launch_description():
             description='Set to true if connected to a physical robot'
         ),
 
+        DeclareLaunchArgument(
+            name='laser',
+            default_value='false',
+            description='Mount the Hokuyo 2D scanner (publishes /scan)'
+        ),
+
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(bringup_launch_path),
             launch_arguments={
+                "description_path": description_path,
+                "description_args": ["laser:=", LaunchConfiguration("laser")],
                 "use_sim_time": LaunchConfiguration("sim"),
                 "robot_name": LaunchConfiguration("robot_name"),
                 "gazebo": LaunchConfiguration("sim"),

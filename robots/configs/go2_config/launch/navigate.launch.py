@@ -23,8 +23,11 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     this_package = FindPackageShare('go2_config')
 
+    # arena.yaml is a SLAM map of worlds/default.sdf, the world gazebo.launch.py loads by
+    # default, so navigation works out of the box. map.yaml/playground.yaml are older maps
+    # kept for reference; they do not correspond to any world that loads under Fortress.
     default_map_path = PathJoinSubstitution(
-        [this_package, 'maps', 'map.yaml']
+        [this_package, 'maps', 'arena.yaml']
     )
 
     default_params_file_path = PathJoinSubstitution(

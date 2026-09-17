@@ -155,7 +155,7 @@
 
         <ros2_control name="${leg}" type="system">
             <hardware>
-                <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
             </hardware>
             <joint name="${leg}_hip_joint">
                 <command_interface name="effort"/>

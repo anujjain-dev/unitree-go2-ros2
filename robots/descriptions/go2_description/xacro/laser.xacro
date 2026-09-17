@@ -27,15 +27,17 @@
         </inertial>
     </link>
     <gazebo reference="front_laser">
-        <sensor name="front_laser_sensor" type="ray">
+        <sensor name="front_laser_sensor" type="gpu_lidar">
             <always_on>true</always_on>
             <visualize>false</visualize>
-            <pose>-0.032 0 0.171 0 0 0</pose>
-            <update_rate>50</update_rate>
-            <ray>
+            <pose>0 0 0 0 0 0</pose>
+            <update_rate>10</update_rate>
+            <topic>scan</topic>
+            <ignition_frame_id>front_laser</ignition_frame_id>
+            <lidar>
             <scan>
                 <horizontal>
-                <samples>40</samples>
+                <samples>360</samples>
                 <resolution>1.000000</resolution>
                 <min_angle>0.000000</min_angle>
                 <max_angle>6.280000</max_angle>
@@ -43,7 +45,7 @@
             </scan>
             <range>
                 <min>0.120000</min>
-                <max>3.5</max>
+                <max>12.0</max>
                 <resolution>0.015000</resolution>
             </range>
             <noise>
@@ -51,14 +53,7 @@
                 <mean>0.0</mean>
                 <stddev>0.01</stddev>
             </noise>
-            </ray>
-            <plugin name="gazebo_ros_front_laserscan" filename="libgazebo_ros_ray_sensor.so">
-            <ros>
-                <remapping>~/out:=scan</remapping>
-            </ros>
-            <output_type>sensor_msgs/LaserScan</output_type>
-            <frame_name>front_laser</frame_name>
-            </plugin>
+            </lidar>
         </sensor>
     </gazebo>
 </robot>

@@ -1,27 +1,40 @@
 <?xml version="1.0"?>
 <robot>
 
+    <!-- Pose publisher plugin for ground truth odometry -->
     <gazebo>
-      <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
-        <ros>
-            <remapping>odom:=odom/ground_truth</remapping>
-        </ros>
-
-        <body_name>base_link</body_name>
-        <frame_name>world</frame_name>
-        <update_rate>10.0</update_rate>
-        <xyz_offset>0 0 0</xyz_offset>
-        <rpy_offset>0 0 0</rpy_offset>
-        <gaussian_noise>0.01</gaussian_noise>
-    </plugin>
+        <plugin filename="ignition-gazebo-pose-publisher-system" name="ignition::gazebo::systems::PosePublisher">
+            <publish_link_pose>true</publish_link_pose>
+            <publish_nested_model_pose>true</publish_nested_model_pose>
+            <use_pose_vector_msg>true</use_pose_vector_msg>
+            <update_frequency>10.0</update_frequency>
+        </plugin>
     </gazebo>
 
+    <!-- Ground-truth base velocity, needed by the RL policy (controller:=model).
+         Its observation includes base linear velocity in the body frame, which nothing
+         else here publishes. The IMU gives orientation and angular velocity only, and
+         the PosePublisher above runs at 10 Hz with no twist. Ignition's OdometryPublisher
+         reports the twist in <robot_base_frame>, matching what the policy trained on.
+         Inert when running the CHAMP controller, since nothing subscribes. -->
     <gazebo>
-        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-        <parameters>$(find go2_description)/config/ros_control/ros_control.yaml</parameters>
-      </plugin>
+        <plugin filename="ignition-gazebo-odometry-publisher-system" name="ignition::gazebo::systems::OdometryPublisher">
+            <odom_frame>odom_ground_truth</odom_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+            <odom_publish_frequency>50</odom_publish_frequency>
+            <dimensions>3</dimensions>
+            <odom_topic>/odom_ground_truth</odom_topic>
+        </plugin>
     </gazebo>
 
+    <!-- Ignition ros2_control plugin -->
+    <gazebo>
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(find go2_description)/config/ros_control/ros_control.yaml</parameters>
+        </plugin>
+    </gazebo>
+
+    <!-- IMU sensor -->
     <gazebo reference="imu_link">
         <sensor name="imu_sensor" type="imu">
             <always_on>true</always_on>
@@ -68,12 +81,7 @@
                 </z>
             </linear_acceleration>
             </imu>
-            <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
-                <ros>
-                    <namespace>imu</namespace>
-                    <remapping>~/out:=data</remapping>
-                </ros>
-                <initial_orientation_as_reference>false</initial_orientation_as_reference>
+            <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu">
             </plugin>
         </sensor>
     </gazebo>

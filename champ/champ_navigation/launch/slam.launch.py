@@ -38,6 +38,16 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument(
+            name='slam_params_file',
+            description='slam_toolbox params file'
+        ),
+
+        DeclareLaunchArgument(
+            name='params_file',
+            description='Navigation2 params file'
+        ),
+
+        DeclareLaunchArgument(
             name='sim', 
             default_value='false',
             description='Enable use_sime_time to true'
@@ -52,7 +62,8 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(navigation_launch_path),
             launch_arguments={
-                'use_sim_time': LaunchConfiguration("sim")
+                'use_sim_time': LaunchConfiguration("sim"),
+                'params_file': LaunchConfiguration("params_file")
             }.items()
         ),
 

@@ -1,0 +1,85 @@
+# Parameters for the RL locomotion policy runner (controller:=model).
+#
+# Values mirror the IsaacLab training config that produced the checkpoint --
+# logs/rsl_rl/unitree_go2_rough/<run>/params/{env,agent}.yaml. If you retrain, re-check
+# every value here against the new run's params before trusting the gait.
+rl_policy_node:
+  ros__parameters:
+    # rsl_rl checkpoint. Override at launch with checkpoint:=/path/to/model_xxx.pt
+    checkpoint: "/home/rahgirrafi/IsaacLab/logs/rsl_rl/unitree_go2_rough/2026-09-08_22-17-38/model_999.pt"
+    device: "cpu"
+
+    # agent.yaml -> policy.actor_hidden_dims / activation
+    hidden_dims: [512, 256, 128]
+    activation: "elu"
+
+    # env.yaml -> sim.dt 0.005 * decimation 4 = 50 Hz policy step.
+    # The PD loop runs faster because IsaacLab's implicit PD actuator ran at the
+    # physics rate, not the policy rate.
+    policy_rate: 50.0
+    pd_rate: 200.0
+
+    # IsaacLab orders articulation joints breadth-first -- all four hips, then all four
+    # thighs, then all four calves -- and names them FL/FR/RL/RR. This repo uses CHAMP
+    # names. The mapping, index by index, is:
+    #   FL->lf  FR->rf  RL->lh  RR->rh
+    #   hip->hip_joint  thigh->upper_leg_joint  calf->lower_leg_joint
+    ros_joint_names:
+      - lf_hip_joint          # FL_hip_joint
+      - rf_hip_joint          # FR_hip_joint
+      - lh_hip_joint          # RL_hip_joint
+      - rh_hip_joint          # RR_hip_joint
+      - lf_upper_leg_joint    # FL_thigh_joint
+      - rf_upper_leg_joint    # FR_thigh_joint
+      - lh_upper_leg_joint    # RL_thigh_joint
+      - rh_upper_leg_joint    # RR_thigh_joint
+      - lf_lower_leg_joint    # FL_calf_joint
+      - rf_lower_leg_joint    # FR_calf_joint
+      - lh_lower_leg_joint    # RL_calf_joint
+      - rh_lower_leg_joint    # RR_calf_joint
+
+    # env.yaml -> scene.robot.init_state.joint_pos, expanded in the order above.
+    default_joint_pos: [0.1, -0.1, 0.1, -0.1, 0.8, 0.8, 1.0, 1.0, -1.5, -1.5, -1.5, -1.5]
+
+    # env.yaml -> actions.joint_pos.scale (offset comes from default_joint_pos above)
+    action_scale: 0.25
+
+    # env.yaml -> scene.robot.actuators.base_legs (DCMotor stiffness/damping/saturation)
+    kp: 25.0
+    kd: 0.5
+    torque_limit: 23.5
+
+    # Height scan. Trained against a 17x11 grid (1.6 m x 1.0 m at 0.1 m) of downward
+    # rays: 17 * 11 = 187 values, each base_z - terrain_z - 0.5, clipped to [-1, 1].
+    #
+    # Gazebo has no equivalent sensor here, but every shipped world is a flat ground
+    # plane, where the whole grid collapses to one constant: walking base height minus
+    # the 0.5 m offset. -0.15 corresponds to a base height of 0.35 m. Retune this if the
+    # robot walks noticeably taller or shorter; replace the constant with a real sensor
+    # if you ever build a world with uneven terrain.
+    #
+    # -0.10 corresponds to the 0.40 m base height this policy actually walks at, measured
+    # from /odom_ground_truth in the default world. Re-measure if you retrain.
+    height_scan_dim: 187
+    height_scan_constant: -0.10
+
+    # env.yaml -> commands.base_velocity.ranges. The policy never saw commands outside
+    # these bounds, so Nav2 output is clipped to them.
+    max_lin_vel_x: 1.0
+    max_lin_vel_y: 1.0
+    max_ang_vel_z: 1.0
+    cmd_vel_timeout: 0.5
+
+    # Ease from the spawn pose into the trained default stance before the policy takes
+    # over, so its first observation is one it has actually seen.
+    startup_stand_duration: 2.0
+
+    # Gazebo spawns the robot with all joints at URDF zero -- a sprawl -- and it lands on
+    # its belly. The trained gains cannot push it back up (IsaacLab always initialised the
+    # robot already standing), so the stand-up phase uses its own stiffer gains.
+    stand_kp: 100.0
+    stand_kd: 2.0
+
+    command_topic: "/rl_joint_effort_controller/commands"
+    odom_topic: "/odom_ground_truth"
+    imu_topic: "/imu/data"

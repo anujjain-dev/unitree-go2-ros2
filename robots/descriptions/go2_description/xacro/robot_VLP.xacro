@@ -3,6 +3,8 @@
 <robot name="go2" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:arg name="DEBUG" default="false"/>
+    <!-- Set laser:=true to swap the Velodyne VLP-16 for the Hokuyo 2D scanner. -->
+    <xacro:arg name="laser" default="false"/>
 
     <xacro:include filename="$(find go2_description)/xacro/const.xacro"/>
     <xacro:include filename="$(find go2_description)/xacro/materials.xacro"/>
@@ -124,7 +126,11 @@
     <xacro:leg name="rh" mirror="-1" mirror_dae="False"  front_hind="-1" front_hind_dae="False" />
     <xacro:leg name="lh" mirror="1"  mirror_dae="True"   front_hind="-1" front_hind_dae="False" />
 
-    <xacro:include filename="$(find go2_description)/xacro/velodyne.xacro"/>
-    <!-- <xacro:include filename="$(find go2_description)/xacro/laser.xacro"/> -->
+    <xacro:unless value="$(arg laser)">
+        <xacro:include filename="$(find go2_description)/xacro/velodyne.xacro"/>
+    </xacro:unless>
+    <xacro:if value="$(arg laser)">
+        <xacro:include filename="$(find go2_description)/xacro/laser.xacro"/>
+    </xacro:if>
 
 </robot>

@@ -1,13 +1,30 @@
 controller_manager:
   ros__parameters:
     use_sim_time: True
-    update_rate: 250  # Hz
+    update_rate: 1000  # Hz - must match simulation update rate
 
     joint_states_controller:
       type: joint_state_broadcaster/JointStateBroadcaster
 
     joint_group_effort_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+
+    # Used only with controller:=model. The RL policy does its own PD (with the
+    # stiffness/damping it was trained against) and sends raw efforts, so it needs a
+    # plain group-effort controller rather than the trajectory controller's PID.
+    # Only one of these two may be active at a time -- they claim the same command
+    # interfaces -- which is what makes the controller:= switch exclusive.
+    rl_joint_effort_controller:
+      type: effort_controllers/JointGroupEffortController
+
+# The broadcaster otherwise publishes on every controller_manager update, i.e. ~1 kHz.
+# robot_state_publisher republishes TF on every one of those, which flooded the graph
+# with ~650 TF messages/s and starved the EKF badly enough to stall SLAM. 200 Hz is
+# still at or above every consumer's own loop rate.
+joint_states_controller:
+  ros__parameters:
+    use_sim_time: True
+    update_rate: 200
 
 joint_group_effort_controller:
   ros__parameters:
@@ -53,6 +70,27 @@ joint_group_effort_controller:
     # constraints:
     #   stopped_velocity_tolerance: 0.01 # Defaults to 0.01
     #   goal_time: 0.0 # Defaults to 0.0 (start immediately)
+
+rl_joint_effort_controller:
+  ros__parameters:
+    use_sim_time: True
+    # ORDER MATTERS: the policy publishes one Float64MultiArray whose i-th element is
+    # the effort for the i-th joint listed here. This must stay identical to
+    # ros_joint_names in go2_config/config/rl/policy.yaml -- IsaacLab's articulation
+    # order, i.e. all four hips, then all four thighs, then all four calves.
+    joints:
+      - lf_hip_joint
+      - rf_hip_joint
+      - lh_hip_joint
+      - rh_hip_joint
+      - lf_upper_leg_joint
+      - rf_upper_leg_joint
+      - lh_upper_leg_joint
+      - rh_upper_leg_joint
+      - lf_lower_leg_joint
+      - rf_lower_leg_joint
+      - lh_lower_leg_joint
+      - rh_lower_leg_joint
 
 # joint_group_position_controller:
 #   ros__parameters:

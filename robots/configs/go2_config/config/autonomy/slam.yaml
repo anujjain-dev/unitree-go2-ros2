@@ -12,7 +12,12 @@ slam_toolbox:
     # ROS Parameters
     odom_frame: odom
     map_frame: map
-    base_frame: base_footprint
+    # base_link, NOT base_footprint. The laser is bolted to base_link by a static
+    # transform, but base_footprint->base_link is published live by the EKF and swings
+    # +/-8 deg in roll and +/-6 deg in pitch as the robot walks. A 2D SLAM pipeline takes
+    # the laser's offset from its base frame to be rigid, so anchoring to base_footprint
+    # feeds it scans rotated by that swing and the map comes out smeared.
+    base_frame: base_link
     scan_topic: /scan
     mode: mapping #localization
 
@@ -28,9 +33,9 @@ slam_toolbox:
     transform_publish_period: 0.02 #if 0 never publishes odometry
     map_update_interval: 5.0
     resolution: 0.05
-    max_laser_range: 5.0 #for rastering images
+    max_laser_range: 12.0 #for rastering images; must match the lidar's <max> range
     minimum_time_interval: 0.5
-    transform_timeout: 0.2
+    transform_timeout: 0.5   # must exceed the odom->base_footprint publish lag
     tf_buffer_duration: 30.
     stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
     enable_interactive_mode: true

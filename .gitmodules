@@ -1,0 +1,3 @@
+[submodule "velodyne"]
+	path = velodyne
+	url = https://github.com/rahgirrafi/velodyne_simulator_ros2_gz.git
